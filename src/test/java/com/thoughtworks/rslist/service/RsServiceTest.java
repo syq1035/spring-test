@@ -113,4 +113,18 @@ class RsServiceTest {
             });
   }
 
+  @Test
+  void shouldBuyRsEventThrowExceptionWhenAmountIsNotEnough() {
+    // given
+    TradeDto tradeDto = TradeDto.builder().amount(666).rank(2).rsEventId(10).build();
+    when(rsEventRepository.findById(anyInt())).thenReturn(Optional.of(rsEventDto));
+    when(tradeRepository.findById(anyInt())).thenReturn(Optional.of(tradeDto));
+    //when&then
+    assertThrows(
+            RuntimeException.class,
+            () -> {
+              rsService.buy(trade, 1);
+            });
+  }
+
 }
