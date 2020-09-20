@@ -138,4 +138,16 @@ class RsServiceTest {
     verify(tradeRepository).save(TradeDto.builder().amount(trade.getAmount()).rank(trade.getRank()).rsEventId(1).build());
   }
 
+  @Test
+  void shouldbuyRsEventSuccessWhenTheRankIsBougthAndAmountEnough() {
+    // given
+    TradeDto tradeDto = TradeDto.builder().amount(66).rank(2).rsEventId(10).build();
+    when(rsEventRepository.findById(anyInt())).thenReturn(Optional.of(rsEventDto));
+    when(tradeRepository.findByRank(anyInt())).thenReturn(tradeDto);
+    // when
+    rsService.buy(trade, 1);
+    //then
+    verify(tradeRepository).delete(tradeDto);
+    verify(tradeRepository).save(TradeDto.builder().amount(trade.getAmount()).rank(trade.getRank()).rsEventId(1).build());
+  }
 }
