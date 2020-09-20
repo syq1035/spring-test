@@ -64,17 +64,27 @@ class RsControllerTest {
   public void shouldGetRsEventList() throws Exception {
     UserDto save = userRepository.save(userDto);
 
-    RsEventDto rsEventDto =
-        RsEventDto.builder().keyword("无分类").eventName("第一条事件").user(save).build();
-
-    rsEventRepository.save(rsEventDto);
-
+    RsEventDto rsEventDto1 = RsEventDto.builder().keyword("无分类").eventName("第一条事件").voteNum(18).user(save).build();
+    rsEventRepository.save(rsEventDto1);
+    RsEventDto rsEventDto2 = RsEventDto.builder().keyword("无分类").eventName("第二条事件").voteNum(45).user(save).build();
+    rsEventRepository.save(rsEventDto2);
+    RsEventDto rsEventDto3 = RsEventDto.builder().keyword("无分类").eventName("第三条事件").voteNum(98).user(save).build();
+    rsEventRepository.save(rsEventDto3);
+    RsEventDto rsEventDto4 = RsEventDto.builder().keyword("无分类").eventName("第四条事件").voteNum(18).user(save).build();
+    rsEventRepository.save(rsEventDto4);
+    TradeDto tradeDto = TradeDto.builder().amount(100).rank(2).rsEventId(rsEventDto4.getId()).build();
+    tradeRepository.save(tradeDto);
+    tradeDto = TradeDto.builder().amount(100).rank(1).rsEventId(rsEventDto2.getId()).build();
+    tradeRepository.save(tradeDto);
     mockMvc
         .perform(get("/rs/list"))
-        .andExpect(jsonPath("$", hasSize(1)))
-        .andExpect(jsonPath("$[0].eventName", is("第一条事件")))
+        .andExpect(jsonPath("$", hasSize(4)))
+        .andExpect(jsonPath("$[0].eventName", is("第二条事件")))
         .andExpect(jsonPath("$[0].keyword", is("无分类")))
         .andExpect(jsonPath("$[0]", not(hasKey("user"))))
+        .andExpect(jsonPath("$[1].eventName", is("第四条事件")))
+        .andExpect(jsonPath("$[2].eventName", is("第三条事件")))
+        .andExpect(jsonPath("$[3].eventName", is("第一条事件")))
         .andExpect(status().isOk());
   }
 
@@ -107,12 +117,12 @@ class RsControllerTest {
     UserDto save = userRepository.save(userDto);
 
     RsEventDto rsEventDto =
-        RsEventDto.builder().keyword("无分类").eventName("第一条事件").user(save).build();
+        RsEventDto.builder().keyword("无分类").eventName("第一条事件").voteNum(111).user(save).build();
 
     rsEventRepository.save(rsEventDto);
-    rsEventDto = RsEventDto.builder().keyword("无分类").eventName("第二条事件").user(save).build();
+    rsEventDto = RsEventDto.builder().keyword("无分类").eventName("第二条事件").voteNum(49).user(save).build();
     rsEventRepository.save(rsEventDto);
-    rsEventDto = RsEventDto.builder().keyword("无分类").eventName("第三条事件").user(save).build();
+    rsEventDto = RsEventDto.builder().keyword("无分类").eventName("第三条事件").voteNum(33).user(save).build();
     rsEventRepository.save(rsEventDto);
     mockMvc
         .perform(get("/rs/list?start=1&end=2"))
