@@ -1,7 +1,9 @@
 package com.thoughtworks.rslist.service;
 
+import com.thoughtworks.rslist.domain.Trade;
 import com.thoughtworks.rslist.domain.Vote;
 import com.thoughtworks.rslist.dto.RsEventDto;
+import com.thoughtworks.rslist.dto.TradeDto;
 import com.thoughtworks.rslist.dto.UserDto;
 import com.thoughtworks.rslist.dto.VoteDto;
 import com.thoughtworks.rslist.repository.RsEventRepository;
@@ -30,6 +32,9 @@ class RsServiceTest {
   @Mock TradeRepository tradeRepository;
   LocalDateTime localDateTime;
   Vote vote;
+  UserDto userDto;
+  RsEventDto rsEventDto;
+  Trade trade;
 
   @BeforeEach
   void setUp() {
@@ -37,6 +42,9 @@ class RsServiceTest {
     rsService = new RsService(rsEventRepository, userRepository, voteRepository, tradeRepository);
     localDateTime = LocalDateTime.now();
     vote = Vote.builder().voteNum(2).rsEventId(1).time(localDateTime).userId(1).build();
+    userDto = UserDto.builder().voteNum(5).phone("18888888888").gender("female").email("a@b.com").age(19).userName("xiaoli").id(2).build();
+    rsEventDto = RsEventDto.builder().eventName("event name").id(1).keyword("keyword").voteNum(2).user(userDto).build();
+    trade = Trade.builder().amount(100).rank(2).build();
   }
 
   @Test
@@ -91,4 +99,18 @@ class RsServiceTest {
           rsService.vote(vote, 1);
         });
   }
+
+  @Test
+  void shouldBuyRsEventThrowExceptionWhenRsEventNotExist() {
+    // given
+    when(rsEventRepository.findById(anyInt())).thenReturn(Optional.of(rsEventDto));
+    when(tradeRepository.findById(anyInt())).thenReturn(Optional.empty());
+    //when&then
+    assertThrows(
+            RuntimeException.class,
+            () -> {
+              rsService.buy(trade, 1);
+            });
+  }
+
 }
