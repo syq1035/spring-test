@@ -55,13 +55,16 @@ public class RsService {
 
   public void buy(Trade trade, int id) {
     Optional<RsEventDto> rsEventDto = rsEventRepository.findById(id);
-    Optional<TradeDto> originTrade = Optional.of(tradeRepository.findByRank(trade.getRank()));
+    boolean d = rsEventDto.isPresent();
+    TradeDto originTrade = tradeRepository.findByRank(trade.getRank());
+    boolean h = rsEventDto.isPresent();
+
     if(!rsEventDto.isPresent()
-            || (originTrade.isPresent() && originTrade.get().getAmount() > trade.getAmount())) {
+            || (originTrade != null && originTrade.getAmount() > trade.getAmount())) {
       throw new RequestNotValidException("involid param");
     }
-    if(originTrade.isPresent()) {
-      tradeRepository.delete(originTrade.get());
+    if(originTrade != null) {
+      tradeRepository.delete(originTrade);
     }
     TradeDto tradeDto = TradeDto.builder().amount(trade.getAmount()).rank(trade.getRank()).rsEventId(id).build();
     tradeRepository.save(tradeDto);

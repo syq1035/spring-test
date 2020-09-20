@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -103,8 +104,8 @@ class RsServiceTest {
   @Test
   void shouldBuyRsEventThrowExceptionWhenRsEventNotExist() {
     // given
-    when(rsEventRepository.findById(anyInt())).thenReturn(Optional.of(rsEventDto));
-    when(tradeRepository.findById(anyInt())).thenReturn(Optional.empty());
+    when(rsEventRepository.findById(anyInt())).thenReturn(Optional.empty());
+    when(tradeRepository.findByRank(anyInt())).thenReturn(null);
     //when&then
     assertThrows(
             RuntimeException.class,
@@ -118,13 +119,23 @@ class RsServiceTest {
     // given
     TradeDto tradeDto = TradeDto.builder().amount(666).rank(2).rsEventId(10).build();
     when(rsEventRepository.findById(anyInt())).thenReturn(Optional.of(rsEventDto));
-    when(tradeRepository.findById(anyInt())).thenReturn(Optional.of(tradeDto));
+    when(tradeRepository.findByRank(anyInt())).thenReturn(tradeDto);
     //when&then
     assertThrows(
             RuntimeException.class,
             () -> {
               rsService.buy(trade, 1);
             });
+  }
+  @Test
+  void shouldbuyRsEventSuccessWhenTheRankIsNotBougth() {
+    // given
+    when(rsEventRepository.findById(anyInt())).thenReturn(Optional.of(rsEventDto));
+    when(tradeRepository.findByRank(anyInt())).thenReturn(null);
+    // when
+    rsService.buy(trade, 1);
+    //then
+    verify(tradeRepository).save(TradeDto.builder().amount(trade.getAmount()).rank(trade.getRank()).rsEventId(1).build());
   }
 
 }
